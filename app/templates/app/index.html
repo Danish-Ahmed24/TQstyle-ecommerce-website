@@ -2,8 +2,24 @@
 {% load static %}
 
 {% block body_content %}
+        <h1 class="text-center my-4">Welcome to TQstyle</h1>
+        {% for product in products %}
+                <div class="card bg-base-100 w-96 shadow-sm">
+                        <figure class="px-10 pt-10">
+                                <img
+                                        src="{{ product.images.url }}"
+                                        alt="{{ product.name }}"
+                                        class="rounded-xl" />
+                        </figure>
+                        <div class="card-body items-center text-center">
+                                <h2 class="card-title">{{ product.name }}</h2>
+                                <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
+                                <div class="card-actions">
+                                        <button class="btn btn-primary">Buy Now</button>
+                                </div>
+                        </div>
+                </div>
+        {% endfor %}
 
-        <img src="{% static "app/media/banner.png" %}" alt="home" />
-
-
+        
 {% endblock body_content %}
