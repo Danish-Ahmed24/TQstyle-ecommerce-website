@@ -1,0 +1,176 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block body_content %}
+<div class="bg-base-100 min-h-screen">
+    <!-- Page Header -->
+    <div class="bg-gray-100 py-8 px-4">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl font-bold text-gray-900">All Products</h1>
+            <p class="text-gray-600 mt-2">Explore our complete collection of jewelry</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Sidebar Filters -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-20">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Filters</h2>
+
+                    <!-- Category Filter -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 cursor-pointer hover:text-purple-600">
+                                <input 
+                                    type="checkbox" 
+                                    class="checkbox checkbox-sm" 
+                                    value="all"
+                                    onchange="filterProducts('category', this.value, this.checked)"
+                                />
+                                <span class="text-gray-700">All Categories</span>
+                            </label>
+                            
+                            {% for category in categorys %}
+                            <label class="flex items-center gap-3 cursor-pointer hover:text-purple-600">
+                                <input 
+                                    type="checkbox" 
+                                    class="checkbox checkbox-sm category-filter" 
+                                    value="{{ category.id }}"
+                                    onchange="filterProducts('category', this.value, this.checked)"
+                                />
+                                <span class="text-gray-700">{{ category.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Price Range</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 cursor-pointer hover:text-purple-600">
+                                <input type="checkbox" class="checkbox checkbox-sm" value="0-1000" />
+                                <span class="text-gray-700">₹0 - ₹1,000</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer hover:text-purple-600">
+                                <input type="checkbox" class="checkbox checkbox-sm" value="1000-3000" />
+                                <span class="text-gray-700">₹1,000 - ₹3,000</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer hover:text-purple-600">
+                                <input type="checkbox" class="checkbox checkbox-sm" value="3000-5000" />
+                                <span class="text-gray-700">₹3,000 - ₹5,000</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer hover:text-purple-600">
+                                <input type="checkbox" class="checkbox checkbox-sm" value="5000+" />
+                                <span class="text-gray-700">₹5,000+</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Sort By</h3>
+                        <select class="select select-bordered w-full text-sm" onchange="sortProducts(this.value)">
+                            <option value="newest">Newest First</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="name">Name: A to Z</option>
+                        </select>
+                    </div>
+
+                    <!-- Reset Filters -->
+                    <button class="btn btn-outline btn-sm w-full" onclick="resetFilters()">
+                        Reset Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="lg:col-span-3">
+                <!-- Products Count -->
+                <div class="mb-6 flex justify-between items-center">
+                    <p class="text-gray-600">Showing <span id="product-count">{{ products.count }}</span> products</p>
+                </div>
+
+                <!-- Products Grid -->
+                <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {% if products %}
+                        {% for product in products %}
+                            <div class="product-card group relative" data-category="{{ product.category.id }}" data-price="{{ product.price }}">
+                                <!-- NEW Badge -->
+                                <div class="absolute top-4 left-4 z-10">
+                                    <span class="bg-red-600 text-white text-xs font-bold px-3 py-1">NEW</span>
+                                </div>
+
+                                <!-- Sale Badge -->
+                                <div class="absolute top-4 right-4 z-10">
+                                    <span class="bg-red-600 text-white text-xs font-bold px-2 py-1">-50%</span>
+                                </div>
+
+                                <!-- Product Image -->
+                                <div class="mb-6 overflow-hidden rounded-lg bg-gray-200 h-64">
+                                    <img 
+                                        src="{{ product.images.url }}" 
+                                        alt="{{ product.name }}" 
+                                        class="w-full h-full object-cover group-hover:opacity-90 transition-opacity cursor-pointer"
+                                        onclick="goToProductDetail({{ product.id }})"
+                                    />
+                                </div>
+                                
+                                <!-- Product Info -->
+                                <div class="space-y-2">
+                                    <p class="text-sm text-gray-500">{{ product.category.name }}</p>
+                                    <h3 class="text-lg font-semibold text-gray-800 cursor-pointer hover:text-purple-600" onclick="goToProductDetail({{ product.id }})">
+                                        {{ product.name }}
+                                    </h3>
+                                    
+                                    <!-- Price Section -->
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xl font-bold text-gray-900">Rs.{{ product.price }}</span>
+                                        <span class="text-sm text-red-600 line-through font-semibold">Rs.{{ product.price|add:"1000" }}</span>
+                                    </div>
+
+                                    <!-- Add to Cart Button -->
+                                    <button class="btn btn-primary btn-sm w-full mt-4">
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-span-3 text-center py-12">
+                            <p class="text-gray-500 text-lg">No products found</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterProducts(filterType, value, isChecked) {
+        // Add your filtering logic here
+        console.log(`Filter by ${filterType}: ${value} - ${isChecked}`);
+    }
+
+    function sortProducts(sortValue) {
+        // Add your sorting logic here
+        console.log(`Sort by: ${sortValue}`);
+    }
+
+    function resetFilters() {
+        document.querySelectorAll('.category-filter').forEach(el => el.checked = false);
+        location.reload();
+    }
+
+    function goToProductDetail(productId) {
+        window.location.href = `/product/${productId}/`;
+    }
+</script>
+
+{% endblock body_content %}

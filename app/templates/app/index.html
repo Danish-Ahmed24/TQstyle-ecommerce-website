@@ -2,24 +2,70 @@
 {% load static %}
 
 {% block body_content %}
-        <h1 class="text-center my-4">Welcome to TQstyle</h1>
-        {% for product in products %}
-                <div class="card bg-base-100 w-96 shadow-sm">
-                        <figure class="px-10 pt-10">
-                                <img
-                                        src="{{ product.images.url }}"
-                                        alt="{{ product.name }}"
-                                        class="rounded-xl" />
-                        </figure>
-                        <div class="card-body items-center text-center">
-                                <h2 class="card-title">{{ product.name }}</h2>
-                                <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
-                                <div class="card-actions">
-                                        <button class="btn btn-primary">Buy Now</button>
-                                </div>
-                        </div>
-                </div>
-        {% endfor %}
+<div class="bg-base-100">
+    <!-- Header -->
+    <div class="text-center py-12">
+        <h1 class="text-4xl font-bold">Welcome to TQstyle</h1>
+    </div>
 
-        
+    <!-- Featured Categories -->
+    <div class="px-4 py-8 bg-base-200">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">Featured Categories</h2>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 justify-items-center">
+                {% for category in categorys %}
+                <div class="text-center">
+                    <div class="mb-4">
+                        <img 
+                            src="{{category.picture.url}}" 
+                            alt="{{category.name}}" 
+                            class="w-32 h-32 rounded-full object-cover shadow-md hover:shadow-lg transition-shadow"
+                        />
+                    </div>
+                    <p class="font-semibold text-sm">{{category.name}}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="px-4 py-12 bg-base-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for product in products %}
+                    <div class="group cursor-pointer">
+                        <!-- Product Image -->
+                        <div class="mb-6 overflow-hidden rounded-lg">
+                            <img 
+                                src="{{ product.images.url }}" 
+                                alt="{{ product.name }}" 
+                                class="w-full h-80 object-cover group-hover:opacity-90 transition-opacity"
+                            />
+                        </div>
+                        
+                        <!-- Product Info -->
+                        <div class="space-y-2">
+                            <h3 class="text-xl font-semibold text-gray-800">{{ product.name }}</h3>
+                            
+                            <!-- Price -->
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl font-bold text-gray-900">Rs.{{ product.price }}</span>
+                                {% if product.description %}
+                                    <span class="text-sm text-gray-500 line-through">{{ product.description }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+<!-- View All Button -->
+<div class="flex justify-center mt-12">
+        <a href="#" class="btn btn-success btn-lg">View All Products</a>
+</div>
+    </div>
+</div>
+
 {% endblock body_content %}
