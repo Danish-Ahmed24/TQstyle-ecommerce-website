@@ -1,0 +1,88 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block body_content %}
+    <div class="bg-base-100">
+    <!-- Breadcrumb -->
+        <div class="px-4 py-4 text-sm">
+            <div class="max-w-7xl mx-auto">
+                <a href="{% url 'index' %}" class="link link-neutral">Home</a>
+                <span class="mx-2">/</span>
+                <a href="{% url 'products' %}" class="link link-neutral">Products</a>
+                <span class="mx-2">/</span>
+                <span class="text-gray-500">{{ product.name }}</span>
+            </div>
+        </div>
+
+    <!-- Product Detail -->
+        <div class="px-4 py-12 bg-base-100">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Product Image -->
+                    <div class="flex items-center justify-center">
+                        <img
+                            src="{{ product.images.url }}"
+                            alt="{{ product.name }}"
+                            class="w-full h-auto rounded-lg shadow-lg"
+                        />
+                    </div>
+
+                <!-- Product Info -->
+                    <div class="space-y-6">
+                    <!-- Title -->
+                        <div>
+                            <h1 class="text-4xl font-bold text-gray-900">{{ product.name }}</h1>
+                        </div>
+
+                    <!-- Category -->
+                        <div>
+                            <p class="text-gray-600">
+                                <span class="font-semibold">Category:</span>
+                                <a href="#" class="link link-primary">{{ product.category.name }}</a>
+                            </p>
+                        </div>
+
+                    <!-- Price -->
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-4">
+                                <span class="text-4xl font-bold text-gray-900">Rs.{{ product.price }}</span>
+
+                            </div>
+                        </div>
+
+                    <!-- Description -->
+                        {% if product.description %}
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-gray-900 mb-2">Description</h3>
+                                <p class="text-gray-700">{{ product.description }}</p>
+                            </div>
+                        {% endif %}
+
+                    <!-- Add to Cart Button -->
+                        <div class="pt-6">
+                            <button class="btn btn-success btn-lg w-full">Add to Cart</button>
+                        </div>
+
+                    <!-- Additional Info -->
+                        <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+                            <p class="text-sm text-gray-600"><span class="font-semibold">SKU:</span> {{ product.id }}</p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold">Stock:</span> <span class="badge badge-success">In Stock</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Related Products -->
+        <div class="px-4 py-12 bg-base-200">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-12">Related Products</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Add related products here -->
+                    <p class="text-gray-500 text-center col-span-full">No related products yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock body_content %}
