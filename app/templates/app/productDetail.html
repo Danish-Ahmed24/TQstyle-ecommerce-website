@@ -17,72 +17,107 @@
     <!-- Product Detail -->
         <div class="px-4 py-12 bg-base-100">
             <div class="max-w-7xl mx-auto">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <!-- Product Image -->
-                    <div class="flex items-center justify-center">
-                        <img
-                            src="{{ product.images.url }}"
-                            alt="{{ product.name }}"
-                            class="w-full h-auto rounded-lg shadow-lg"
-                        />
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Product Image Gallery -->
+                    <div class="space-y-4">
+                        <!-- Main Image -->
+                        <div class="flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
+                            <img
+                                id="mainProductImage"
+                                src="{{ product.variants.first.image.url }}"
+                                alt="{{ product.name }}"
+                                class="w-full h-auto rounded-lg shadow-lg object-cover"
+                            />
+                        </div>
+                        
+                        <!-- Thumbnail Gallery -->
+                        {% if product.variants.count > 1 %}
+                        <div class="grid grid-cols-4 gap-3">
+                            {% for variant in product.variants.all %}
+                            <div class="thumbnail-item cursor-pointer border-2 rounded-lg overflow-hidden transition-all {% if forloop.first %}border-success{% else %}border-gray-300 hover:border-gray-400{% endif %}"
+                                 data-image="{{ variant.image.url }}"
+                                 data-price="{{ variant.price }}"
+                                 data-stock="{{ variant.stock }}"    >                           
+                                <img src="{{ variant.image.url }}" 
+                                     alt="{{ product.name }}" 
+                                     class="w-full h-32 object-cover aspect-square">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
 
                 <!-- Product Info -->
                     <div class="space-y-6">
-                    <!-- Title -->
-                        <div>
-                            <h1 class="text-4xl font-bold text-gray-900">{{ product.name }}</h1>
-                        </div>
-
+                    
                     <!-- Category -->
                         <div>
                             <p class="text-gray-600">
                                 <span class="font-semibold">Category:</span>
-                                <a href="#" class="link link-primary">{{ product.category.name }}</a>
+                                <a href="{% url 'products-by-category' product.category.id %}" class="link link-primary">{{ product.category.name }}</a>
                             </p>
                         </div>
 
+                        <!-- Title -->
+                        <div>
+                            <h1 class="text-3xl text-gray-900">{{ product.name }}</h1>
+                        </div>
+                        
                     <!-- Price -->
                         <div class="space-y-2">
-                            <div class="flex items-center gap-4">
-                                <span class="text-4xl font-bold text-gray-900">Rs.{{ product.price }}</span>
-
+                            <div class="flex items-center ">
+                                <span class="text-3xl font-bold text-gray-900">Rs.<span id="selectedPriceValue">{{ product.variants.first.price }}</span></span>
                             </div>
+                        </div>
+
+                        <!-- Stock Status -->
+                        <div>
+                            <p class="text-sm text-gray-600">
+                                <span class="inline-flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full {% if product.variants.first.is_in_stock %}bg-green-500 animate-pulse shadow-lg shadow-green-500{% else %}bg-red-500{% endif %}"></span>
+                                    <span id="stockStatus">
+                                        {% if product.variants.first.is_in_stock %}In Stock ({{ product.variants.first.stock }} available){% else %}Out of Stock{% endif %}
+                                    </span>
+                                </span>
+                                
+                            </p>
                         </div>
 
                     <!-- Description -->
-                        {% if product.description %}
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <h3 class="font-semibold text-gray-900 mb-2">Description</h3>
-                                <p class="text-gray-700">{{ product.description }}</p>
-                            </div>
-                        {% endif %}
-
+                    {% if product.description %}
+                    <div class="collapse collapse-plus bg-base-100 border border-base-300" id="descriptionCollapse">
+                        <input type="radio" name="my-accordion-3" />
+                        <div class="collapse-title font-semibold">Description</div>
+                        <div class="collapse-content text-sm">{{ product.description }}</div>
+                    </div>
+                    {% endif %}
+                      
+                        
                     <!-- Add to Cart Button -->
                         <div class="pt-6">
-                            <button class="btn btn-success btn-lg w-full" id="addToCartButton" data-product-id="{{product.pk}}">Add to sCart</button>
+                            <button class="btn btn-success btn-lg w-full" 
+                                    id="addToCartButton" 
+                                    data-product-id="{{ product.pk }}"
+                                    data-variant-id="{{ product.variants.first.id }}"
+                                    {% if not product.variants.first.is_in_stock %}disabled{% endif %}>
+                                {% if product.variants.first.is_in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+                            </button>
                         </div>
-
-                    <!-- Additional Info -->
-                        <div class="bg-gray-50 p-4 rounded-lg space-y-2">
-                            <p class="text-sm text-gray-600"><span class="font-semibold">SKU:</span> {{ product.id }}</p>
-                            <p class="text-sm text-gray-600"><span class="font-semibold">Stock:</span> <span class="badge badge-success">In Stock</span></p>
+                    <!-- Order Via Whatsapp Button -->
+                        <div>
+                            <button class="btn btn-success btn-lg w-full" 
+                                    id="orderWhatsappButton" 
+                                    data-product-id="{{ product.pk }}"
+                                    data-variant-id="{{ product.variants.first.id }}"
+                                    {% if not product.variants.first.is_in_stock %}disabled{% endif %}>
+                                {% if product.variants.first.is_in_stock %}Order On Whatsapp{% else %}Out of Stock{% endif %}
+                            </button>
                         </div>
+                        
+                    
                     </div>
                 </div>
             </div>
         </div>
-
-    <!-- Related Products -->
-        <div class="px-4 py-12 bg-base-200">
-            <div class="max-w-7xl mx-auto">
-                <h2 class="text-3xl font-bold text-center mb-12">Related Products</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Add related products here -->
-                    <p class="text-gray-500 text-center col-span-full">No related products yet</p>
-                </div>
-            </div>
-        </div>
     </div>
-
 {% endblock body_content %}

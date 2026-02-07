@@ -3,7 +3,7 @@
         <!-- Product Image -->
         <div class="overflow-hidden bg-gray-100 flex-shrink-0">
             <img
-                src="{{ product.images.url }}"
+                src="{{ product.variants.first.image.url }}"
                 alt="{{ product.name }}"
                 class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -17,9 +17,8 @@
 
             <!-- Price -->
             <div class="mt-auto pt-3">
-                <span class="text-2xl font-bold text-gray-900">Rs.{{ product.price }}</span>
+                <span class="text-2xl font-bold text-gray-900">Rs.{{ product.variants.first.price }}</span>
             </div>
-
 
         </div>
     </div>
