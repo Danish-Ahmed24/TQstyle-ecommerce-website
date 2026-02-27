@@ -25,8 +25,7 @@ SECRET_KEY = "django-insecure-57l1u27lsp!pmn)z0ow@aema@b9n47m-5u@&hj1gkum#a6y)i7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.100.112','localhost', '127.0.0.1']
-
+ALLOWED_HOSTS = ['192.168.10.35', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -60,9 +59,11 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "app.context_processors.base_context",
             ],
         },
     },
@@ -117,6 +118,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+# WhatsApp business number (with country code, no + or spaces)
+WHATSAPP_NUMBER = "923193555402"
 
 # Define the base URL for serving media files
 MEDIA_URL = '/media/'

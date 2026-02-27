@@ -1,0 +1,125 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block body_content %}
+<div class="max-w-6xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-8">Your Cart</h1>
+
+    <!-- ─── Non-empty state ─── -->
+    <div id="cart-items-container" {% if not cart_count %}style="display:none"{% endif %}>
+        <div class="lg:flex lg:gap-8 lg:items-start">
+
+            <!-- Items column -->
+            <div class="flex-1 flex flex-col gap-4">
+                {% for item in cart %}
+                <div class="card bg-base-100 shadow border border-base-200" data-cart-item>
+                    <div class="flex">
+                        <!-- Product image -->
+                        <a href="{% url 'product-detail' item.variant.product.id %}" class="shrink-0">
+                            <img src="{{ item.variant.image.url }}"
+                                 alt="{{ item.variant.product.name }}"
+                                 class="w-28 h-28 object-cover rounded-l-2xl" />
+                        </a>
+                        <!-- Card body -->
+                        <div class="flex-1 p-4 flex flex-col gap-2">
+                            <div class="flex justify-between items-start gap-2">
+                                <div>
+                                    <a href="{% url 'product-detail' item.variant.product.id %}"
+                                       class="font-semibold text-base hover:underline">
+                                        {{ item.variant.product.name }}
+                                    </a>
+                                    <p class="text-xs text-base-content/60">SKU: {{ item.variant.sku }}</p>
+                                    <p class="text-sm text-base-content/70">Rs.{{ item.variant.price }} each</p>
+                                </div>
+                                <!-- Remove button -->
+                                <form method="POST" action="{% url 'cart-remove' item.variant.id %}" class="remove-form shrink-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-ghost btn-xs text-error" title="Remove item">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Qty controls + line total -->
+                            <div class="flex items-center justify-between mt-auto">
+                                <form method="POST"
+                                      action="{% url 'cart-update' item.variant.id %}"
+                                      class="qty-form flex items-center gap-1">
+                                    {% csrf_token %}
+                                    <button type="button" class="qty-dec btn btn-square btn-sm btn-outline">−</button>
+                                    <input type="number" name="quantity" value="{{ item.quantity }}"
+                                           min="0" max="99"
+                                           class="qty-input input input-bordered input-sm w-14 text-center" />
+                                    <button type="button" class="qty-inc btn btn-square btn-sm btn-outline">+</button>
+                                </form>
+                                <span class="font-bold text-base" data-item-total>Rs.{{ item.total_price }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Order summary column -->
+            <div id="cart-summary" class="mt-6 lg:mt-0 lg:w-80 shrink-0">
+                <div class="card bg-base-100 shadow border border-base-200">
+                    <div class="card-body gap-4">
+                        <h2 class="card-title text-xl">Order Summary</h2>
+
+                        <div class="flex justify-between text-base-content/70 text-sm">
+                            <span>Items</span>
+                            <span data-cart-summary>{{ cart_count }} Item{{ cart_count|pluralize }}</span>
+                        </div>
+
+                        <div class="divider my-0"></div>
+
+                        <div class="flex justify-between font-bold text-lg">
+                            <span>Total</span>
+                            <span class="text-success" data-cart-total>Rs.{{ cart_total }}</span>
+                        </div>
+
+                        <!-- Place Order (primary) -->
+                        <a href="{% url 'checkout' %}?order_type=standard" class="btn btn-primary btn-block btn-lg">
+                            Place Order
+                        </a>
+
+                        <!-- WhatsApp (secondary) -->
+                        <a href="{% url 'checkout' %}?order_type=whatsapp" class="btn btn-success btn-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-5.031 1.378L4.125 5.5l1.378 4.316A9.87 9.87 0 005.125 15a9.875 9.875 0 009.875 9.875 9.875 9.875 0 009.875-9.875 9.875 9.875 0 00-9.875-9.875m0 17.75A7.875 7.875 0 117 15a7.875 7.875 0 017.875 7.875"/>
+                            </svg>
+                            Order via WhatsApp
+                        </a>
+
+                        <a href="{% url 'products' %}" class="btn btn-outline btn-block">
+                            Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ─── Empty state ─── -->
+    <div id="cart-empty-state"
+         class="flex flex-col items-center py-24 gap-6 text-base-content/50"
+         {% if cart_count %}style="display:none"{% endif %}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 opacity-30" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.6 8H19M7 13L5.4 5M10 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/>
+        </svg>
+        <p class="text-xl font-semibold">Your cart is empty</p>
+        <a href="{% url 'products' %}" class="btn btn-success">Browse Products</a>
+    </div>
+</div>
+{% endblock body_content %}
+
+{% block scripts %}
+<script src="{% static 'js/cart.js' %}"></script>
+{% endblock scripts %}

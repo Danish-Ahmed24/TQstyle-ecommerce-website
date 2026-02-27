@@ -1,0 +1,124 @@
+{% extends "app/base.html" %}
+
+{% block body_content %}
+<div class="max-w-5xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-2">Checkout</h1>
+    <p class="text-base-content/60 mb-8">
+        Fill in your details below. We'll contact you to verify your order — payment is
+        <span class="font-semibold text-success">Cash on Delivery</span>.
+    </p>
+
+    <div class="lg:flex lg:gap-10 lg:items-start">
+
+        <!-- ─── Customer details form ─── -->
+        <div class="flex-1">
+            <div class="card bg-base-100 shadow border border-base-200">
+                <div class="card-body gap-5">
+                    <h2 class="card-title text-xl">Your Details</h2>
+
+                    <form method="POST" action="{% url 'checkout' %}">
+                        {% csrf_token %}
+
+                        <!-- Hidden order type (standard / whatsapp) -->
+                        {{ form.order_type }}
+
+                        <!-- Name -->
+                        <div class="form-control mb-4">
+                            <label class="label" for="{{ form.name.id_for_label }}">
+                                <span class="label-text font-semibold">Full Name <span class="text-error">*</span></span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <p class="text-error text-sm mt-1">{{ form.name.errors|join:", " }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-control mb-4">
+                            <label class="label" for="{{ form.email.id_for_label }}">
+                                <span class="label-text font-semibold">Email Address <span class="text-error">*</span></span>
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <p class="text-error text-sm mt-1">{{ form.email.errors|join:", " }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="form-control mb-4">
+                            <label class="label" for="{{ form.phone.id_for_label }}">
+                                <span class="label-text font-semibold">Contact Number <span class="text-error">*</span></span>
+                            </label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                                <p class="text-error text-sm mt-1">{{ form.phone.errors|join:", " }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Delivery Address -->
+                        <div class="form-control mb-6">
+                            <label class="label" for="{{ form.delivery_address.id_for_label }}">
+                                <span class="label-text font-semibold">Delivery Address <span class="text-error">*</span></span>
+                            </label>
+                            {{ form.delivery_address }}
+                            {% if form.delivery_address.errors %}
+                                <p class="text-error text-sm mt-1">{{ form.delivery_address.errors|join:", " }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- COD notice -->
+                        <div class="alert alert-info mb-6 text-sm flex gap-3 items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/>
+                            </svg>
+                            <span>
+                                We will contact you shortly on the number provided above to verify your order.
+                                This order is <strong>Cash on Delivery (COD)</strong> — no payment required now.
+                            </span>
+                        </div>
+
+                        {% if order_type == "whatsapp" %}
+                            <button type="submit" class="btn btn-success btn-block btn-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-5.031 1.378L4.125 5.5l1.378 4.316A9.87 9.87 0 005.125 15a9.875 9.875 0 009.875 9.875 9.875 9.875 0 009.875-9.875 9.875 9.875 0 00-9.875-9.875m0 17.75A7.875 7.875 0 117 15a7.875 7.875 0 017.875 7.875"/>
+                                </svg>
+                                Continue to WhatsApp
+                            </button>
+                        {% else %}
+                            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                                Place Order
+                            </button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Order summary sidebar ─── -->
+        <div class="mt-8 lg:mt-0 lg:w-80 shrink-0">
+            <div class="card bg-base-100 shadow border border-base-200">
+                <div class="card-body gap-3">
+                    <h2 class="card-title text-lg">Order Summary</h2>
+                    {% for item in cart %}
+                    <div class="flex justify-between text-sm py-1 border-b border-base-200 last:border-0">
+                        <span class="flex-1 pr-2">
+                            {{ item.variant.product.name }}
+                            <span class="text-base-content/50">× {{ item.quantity }}</span>
+                        </span>
+                        <span class="font-semibold whitespace-nowrap">Rs.{{ item.total_price }}</span>
+                    </div>
+                    {% endfor %}
+                    <div class="flex justify-between font-bold text-lg pt-2">
+                        <span>Total</span>
+                        <span class="text-success">Rs.{{ cart_total }}</span>
+                    </div>
+                    <p class="text-xs text-base-content/50 mt-1">Cash on Delivery · No advance payment</p>
+                </div>
+            </div>
+
+            <a href="{% url 'cart' %}" class="btn btn-outline btn-block mt-4">← Back to Cart</a>
+        </div>
+
+    </div>
+</div>
+{% endblock body_content %}

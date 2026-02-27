@@ -2,31 +2,51 @@
 {% load static %}
 
 {% block body_content %}
-    <div class="bg-base-100">
 
-        {% include "app/components/category.html" %}
+<!-- Category strip -->
+{% include "app/components/category.html" %}
 
-    <!-- Page Header -->
-        <div class="text-center py-12">
-            <h1 class="text-4xl font-bold">All Products</h1>
-        </div>
+<!-- Product listing section -->
+<section class="bg-[#FAF8F5] px-4 py-12">
+    <div class="max-w-7xl mx-auto">
 
-    <!-- Products Grid -->
-        <div class="px-4 py-12 bg-base-100">
-            <div class="max-w-7xl mx-auto">
-                {% if products %}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {% for product in products %}
-                            {% include 'app/components/productCard.html' %}
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-12">
-                        <p class="text-gray-500 text-lg">No products found</p>
-                    </div>
-                {% endif %}
+        <!-- Page title -->
+        <div class="mb-10 text-center sm:text-left">
+            <p class="text-[#C8A165] text-[10px] uppercase tracking-[0.3em] font-semibold mb-1">TQstyle</p>
+            <h1 class="text-2xl md:text-3xl font-semibold text-[#1A1A1A]"
+                style="font-family:'Playfair Display',Georgia,serif">All Products</h1>
+            <div class="flex items-center gap-3 mt-3 justify-center sm:justify-start">
+                <span class="h-px w-10 bg-[#C8A165] opacity-60"></span>
+                <span class="text-[#C8A165] text-sm select-none">✦</span>
             </div>
+            {% if products %}
+            <p class="text-sm text-[#8a7a6a] mt-3">{{ products|length }} piece{{ products|length|pluralize }} available</p>
+            {% endif %}
         </div>
+
+        {% if products %}
+        <!-- Grid: 1 col → 2 → 3 → 4 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for product in products %}
+                {% include "app/components/productCard.html" %}
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- Empty state -->
+        <div class="flex flex-col items-center py-24 gap-5 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-[#D5CAC0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <p class="text-xl text-[#5A2A83]" style="font-family:'Playfair Display',Georgia,serif">No products found</p>
+            <a href="{% url 'products' %}"
+               class="inline-flex items-center gap-1.5 border border-[#5A2A83] text-[#5A2A83] hover:bg-[#5A2A83] hover:text-white rounded-full px-6 py-2 text-sm font-medium transition-all duration-200">
+                View All Products
+            </a>
+        </div>
+        {% endif %}
+
     </div>
+</section>
 
 {% endblock body_content %}

@@ -2,122 +2,220 @@
 {% load static %}
 
 {% block body_content %}
-    <div class="bg-base-100">
-    <!-- Breadcrumb -->
-        <div class="px-4 py-4 text-sm">
-            <div class="max-w-7xl mx-auto">
-                <a href="{% url 'index' %}" class="link link-neutral">Home</a>
-                <span class="mx-2">/</span>
-                <a href="{% url 'products' %}" class="link link-neutral">Products</a>
-                <span class="mx-2">/</span>
-                <span class="text-gray-500">{{ product.name }}</span>
-            </div>
+<div class="bg-[#FAF8F5] min-h-screen">
+
+    <!-- Breadcrumb + Back -->
+    <nav class="px-4 py-3.5 border-b border-[#ECDFD3] bg-white" aria-label="Breadcrumb">
+        <div class="max-w-7xl mx-auto flex items-center gap-2 text-xs text-[#9a8a7a] flex-wrap">
+            <button onclick="history.back()"
+                    class="flex items-center gap-1 text-[#5A2A83] hover:text-[#3D1A5C] font-medium transition-colors mr-2 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </button>
+            <span class="text-[#E5DDD3]">|</span>
+            <a href="{% url 'index' %}" class="hover:text-[#5A2A83] transition-colors ml-2">Home</a>
+            <span class="text-[#C8A165]">/</span>
+            <a href="{% url 'products' %}" class="hover:text-[#5A2A83] transition-colors">Shop</a>
+            <span class="text-[#C8A165]">/</span>
+            <a href="{% url 'products-by-category' product.category.id %}" class="hover:text-[#5A2A83] transition-colors">{{ product.category.name }}</a>
+            <span class="text-[#C8A165]">/</span>
+            <span class="text-[#1A1A1A] font-medium truncate max-w-[160px]">{{ product.name }}</span>
         </div>
+    </nav>
 
-    <!-- Product Detail -->
-        <div class="px-4 py-12 bg-base-100">
-            <div class="max-w-7xl mx-auto">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <!-- Product Image Gallery -->
-                    <div class="space-y-4">
-                        <!-- Main Image -->
-                        <div class="flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
-                            <img
-                                id="mainProductImage"
-                                src="{{ product.variants.first.image.url }}"
-                                alt="{{ product.name }}"
-                                class="w-full h-auto rounded-lg shadow-lg object-cover"
-                            />
-                        </div>
-                        
-                        <!-- Thumbnail Gallery -->
-                        {% if product.variants.count > 1 %}
-                        <div class="grid grid-cols-4 gap-3">
-                            {% for variant in product.variants.all %}
-                            <div class="thumbnail-item cursor-pointer border-2 rounded-lg overflow-hidden transition-all {% if forloop.first %}border-success{% else %}border-gray-300 hover:border-gray-400{% endif %}"
-                                 data-image="{{ variant.image.url }}"
-                                 data-price="{{ variant.price }}"
-                                 data-stock="{{ variant.stock }}"    >                           
-                                <img src="{{ variant.image.url }}" 
-                                     alt="{{ product.name }}" 
-                                     class="w-full h-32 object-cover aspect-square">
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    </div>
+    <!-- Main product layout -->
+    <div class="max-w-7xl mx-auto px-4 py-10 md:py-16">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
 
-                <!-- Product Info -->
-                    <div class="space-y-6">
-                    
-                    <!-- Category -->
-                        <div>
-                            <p class="text-gray-600">
-                                <span class="font-semibold">Category:</span>
-                                <a href="{% url 'products-by-category' product.category.id %}" class="link link-primary">{{ product.category.name }}</a>
-                            </p>
-                        </div>
-
-                        <!-- Title -->
-                        <div>
-                            <h1 class="text-3xl text-gray-900">{{ product.name }}</h1>
-                        </div>
-                        
-                    <!-- Price -->
-                        <div class="space-y-2">
-                            <div class="flex items-center ">
-                                <span class="text-3xl font-bold text-gray-900">Rs.<span id="selectedPriceValue">{{ product.variants.first.price }}</span></span>
-                            </div>
-                        </div>
-
-                        <!-- Stock Status -->
-                        <div>
-                            <p class="text-sm text-gray-600">
-                                <span class="inline-flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full {% if product.variants.first.is_in_stock %}bg-green-500 animate-pulse shadow-lg shadow-green-500{% else %}bg-red-500{% endif %}"></span>
-                                    <span id="stockStatus">
-                                        {% if product.variants.first.is_in_stock %}In Stock ({{ product.variants.first.stock }} available){% else %}Out of Stock{% endif %}
-                                    </span>
-                                </span>
-                                
-                            </p>
-                        </div>
-
-                    <!-- Description -->
-                    {% if product.description %}
-                    <div class="collapse collapse-plus bg-base-100 border border-base-300" id="descriptionCollapse">
-                        <input type="radio" name="my-accordion-3" />
-                        <div class="collapse-title font-semibold">Description</div>
-                        <div class="collapse-content text-sm">{{ product.description }}</div>
-                    </div>
-                    {% endif %}
-                      
-                        
-                    <!-- Add to Cart Button -->
-                        <div class="pt-6">
-                            <button class="btn btn-success btn-lg w-full" 
-                                    id="addToCartButton" 
-                                    data-product-id="{{ product.pk }}"
-                                    data-variant-id="{{ product.variants.first.id }}"
-                                    {% if not product.variants.first.is_in_stock %}disabled{% endif %}>
-                                {% if product.variants.first.is_in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
-                            </button>
-                        </div>
-                    <!-- Order Via Whatsapp Button -->
-                        <div>
-                            <button class="btn btn-success btn-lg w-full" 
-                                    id="orderWhatsappButton" 
-                                    data-product-id="{{ product.pk }}"
-                                    data-variant-id="{{ product.variants.first.id }}"
-                                    {% if not product.variants.first.is_in_stock %}disabled{% endif %}>
-                                {% if product.variants.first.is_in_stock %}Order On Whatsapp{% else %}Out of Stock{% endif %}
-                            </button>
-                        </div>
-                        
-                    
-                    </div>
+            <!-- ── Image Gallery (left) ── -->
+            <div class="space-y-4">
+                <!-- Main image -->
+                <div class="rounded-2xl overflow-hidden bg-white ring-1 ring-[#E5DDD3] shadow-sm">
+                    <img
+                        id="mainProductImage"
+                        src="{{ product.variants.first.image.url }}"
+                        alt="{{ product.name }}"
+                        class="w-full aspect-square object-cover transition-opacity duration-300"
+                    />
                 </div>
+
+                <!-- Thumbnails (only for multi-variant products) -->
+                {% if product.variants.count > 1 %}
+                <div class="grid grid-cols-4 gap-3">
+                    {% for variant in product.variants.all %}
+                    <button type="button"
+                            class="thumbnail-item rounded-xl overflow-hidden aspect-square ring-1 transition-all duration-200 cursor-pointer bg-white
+                                   {% if forloop.first %}ring-[#C8A165] ring-2{% else %}ring-[#E5DDD3] hover:ring-[#C8A165]{% endif %}"
+                            data-variant-id="{{ variant.id }}"
+                            data-image="{{ variant.image.url }}"
+                            data-price="{{ variant.price }}"
+                            data-stock="{{ variant.stock }}"
+                            aria-label="Select {{ product.name }} variant {{ forloop.counter }}">
+                        <img
+                            src="{{ variant.image.url }}"
+                            alt="{{ product.name }} variant {{ forloop.counter }}"
+                            class="w-full h-full object-cover"
+                        />
+                    </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ── Product Info (right) ── -->
+            <div class="flex flex-col gap-5 lg:py-2">
+
+                <!-- Category tag -->
+                <a href="{% url 'products-by-category' product.category.id %}"
+                   class="self-start text-[#C8A165] text-[10px] uppercase tracking-widest font-semibold hover:opacity-75 transition-opacity">
+                    {{ product.category.name }}
+                </a>
+
+                <!-- Product name -->
+                <h1 class="text-3xl md:text-4xl font-bold text-[#1A1A1A] leading-tight"
+                    style="font-family:'Playfair Display',Georgia,serif">
+                    {{ product.name }}
+                </h1>
+
+                <!-- Price -->
+                <div class="flex items-baseline gap-1">
+                    <span class="text-sm font-medium text-[#9a8a7a]">Rs.</span>
+                    <span class="text-3xl font-bold text-[#C8A165]"
+                          style="font-family:'Playfair Display',Georgia,serif">
+                        <span id="selectedPriceValue">{{ product.variants.first.price }}</span>
+                    </span>
+                </div>
+
+                <!-- Gold accent line -->
+                <div class="h-px w-20 bg-gradient-to-r from-[#C8A165] to-transparent"></div>
+
+                <!-- Stock status — dot must be previousElementSibling of #stockStatus -->
+                <div class="flex items-center gap-2">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0
+                        {% if product.variants.first.is_in_stock %}
+                            bg-emerald-400 shadow-sm shadow-emerald-400/60 animate-pulse
+                        {% else %}
+                            bg-red-400
+                        {% endif %}">
+                    </span>
+                    <span id="stockStatus"
+                          class="text-sm font-medium {% if product.variants.first.is_in_stock %}text-emerald-600{% else %}text-red-500{% endif %}">
+                        {% if product.variants.first.is_in_stock %}
+                            In Stock ({{ product.variants.first.stock }} available)
+                        {% else %}
+                            Out of Stock
+                        {% endif %}
+                    </span>
+                </div>
+
+                <!-- Description accordion -->
+                {% if product.description %}
+                <details class="bg-white rounded-xl border border-[#E5DDD3] px-5 group">
+                    <summary class="py-3.5 font-medium text-sm text-[#1A1A1A] cursor-pointer list-none flex items-center justify-between select-none group-open:text-[#5A2A83]">
+                        <span>Product Description</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#C8A165] transition-transform duration-200 group-open:rotate-180 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </summary>
+                    <p class="pb-4 pt-3 text-sm text-[#5a5a5a] leading-relaxed border-t border-[#F0EBE3] mt-0.5">
+                        {{ product.description }}
+                    </p>
+                </details>
+                {% endif %}
+
+                <!-- ── Add to Cart form ── -->
+                <form method="POST" action="{% url 'cart-add' %}" id="addToCartForm" class="space-y-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="variant_id" id="selectedVariantId" value="{{ product.variants.first.id }}">
+                    <input type="hidden" name="next" value="{{ request.path }}">
+
+                    <!-- Qty selector -->
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-medium text-[#5a5a5a]">Quantity</span>
+                        <div class="flex items-center border border-[#E5DDD3] rounded-xl overflow-hidden bg-white shadow-sm">
+                            <button type="button" id="qtyDec"
+                                    class="px-3.5 py-2.5 text-[#5A2A83] hover:bg-[#F0EBE3] transition-colors text-lg leading-none font-light select-none"
+                                    aria-label="Decrease quantity">−</button>
+                            <input type="number" name="quantity" id="qtyInput" value="1" min="1" max="99"
+                                   class="w-12 text-center border-none outline-none text-sm font-semibold bg-transparent py-2.5 text-[#1A1A1A]">
+                            <button type="button" id="qtyInc"
+                                    class="px-3.5 py-2.5 text-[#5A2A83] hover:bg-[#F0EBE3] transition-colors text-lg leading-none font-light select-none"
+                                    aria-label="Increase quantity">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Add to Cart button -->
+                    <button type="submit"
+                            id="addToCartButton"
+                            class="w-full flex items-center justify-center gap-2.5 bg-[#5A2A83] hover:bg-[#3D1A5C] text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-[#5A2A83]/25 hover:-translate-y-0.5 text-sm tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                            {% if not product.variants.first.is_in_stock %}disabled{% endif %}>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        {% if product.variants.first.is_in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="h-px bg-[#F0EBE3]"></div>
+
+                <!-- WhatsApp order -->
+                <form method="POST" action="{% url 'whatsapp-order' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="variant_id" id="whatsappVariantId" value="{{ product.variants.first.id }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit"
+                            id="orderWhatsappButton"
+                            class="w-full flex items-center justify-center gap-2.5 border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white font-semibold py-3.5 px-8 rounded-xl transition-all duration-200 text-sm tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+                            {% if not product.variants.first.is_in_stock %}disabled{% endif %}>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-5.031 1.378L4.125 5.5l1.378 4.316A9.87 9.87 0 005.125 15a9.875 9.875 0 009.875 9.875 9.875 9.875 0 009.875-9.875 9.875 9.875 0 00-9.875-9.875m0 17.75A7.875 7.875 0 117 15a7.875 7.875 0 017.875 7.875"/>
+                        </svg>
+                        Order via WhatsApp
+                    </button>
+                </form>
+
+                <!-- Trust badges -->
+                <div class="flex flex-wrap gap-5 pt-1">
+                    <span class="flex items-center gap-1.5 text-xs text-[#9a8a7a]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#C8A165]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        Secure Order
+                    </span>
+                    <span class="flex items-center gap-1.5 text-xs text-[#9a8a7a]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#C8A165]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8 4-8-4m16 0v10l-8 4-8-4V7"/>
+                        </svg>
+                        Fast Delivery
+                    </span>
+                    <span class="flex items-center gap-1.5 text-xs text-[#9a8a7a]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#C8A165]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Easy Returns
+                    </span>
+                </div>
+
             </div>
         </div>
     </div>
+</div>
 {% endblock body_content %}
+
+{% block scripts %}
+<script src="{% static 'js/productDetail.js' %}"></script>
+<script>
+    // Inline qty ± controls for product detail page
+    document.getElementById('qtyDec')?.addEventListener('click', function () {
+        const inp = document.getElementById('qtyInput');
+        if (inp) inp.value = Math.max(1, parseInt(inp.value, 10) - 1);
+    });
+    document.getElementById('qtyInc')?.addEventListener('click', function () {
+        const inp = document.getElementById('qtyInput');
+        if (inp) inp.value = Math.min(99, parseInt(inp.value, 10) + 1);
+    });
+</script>
+{% endblock scripts %}

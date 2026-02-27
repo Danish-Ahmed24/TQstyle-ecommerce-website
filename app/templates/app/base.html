@@ -1,23 +1,223 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{{title}}</title>
+        <title>{{ title }} – TQstyle</title>
+
+        <!-- Google Fonts: Playfair Display (headings) + Inter (body) -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+        <!-- daisyUI component styles -->
         <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
 
+        <!-- Tailwind v4 custom design tokens -->
+        <style type="text/tailwindcss">
+            @theme {
+                --font-display: 'Playfair Display', Georgia, serif;
+                --color-gold:         #C8A165;
+                --color-gold-light:   #D9BC8C;
+                --color-gold-dark:    #A8844A;
+                --color-purple:       #5A2A83;
+                --color-purple-dark:  #3D1A5C;
+                --color-purple-light: #7B3FB3;
+                --color-cream:        #FAF8F5;
+                --color-cream-dark:   #F0EBE3;
+                --color-ink:          #1A1A1A;
+            }
+        </style>
+
+        <!-- Override daisyUI CSS variables → luxury jewelry palette -->
+        <style>
+            :root {
+                --color-primary:         #5A2A83;
+                --color-primary-content: #ffffff;
+                --color-secondary:       #C8A165;
+                --color-secondary-content: #1A1A1A;
+                --color-accent:          #C8A165;
+                --color-accent-content:  #1A1A1A;
+                --color-base-100:        #FAF8F5;
+                --color-base-200:        #F0EBE3;
+                --color-base-300:        #E5DDD3;
+                --color-base-content:    #1A1A1A;
+            }
+
+            body {
+                font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                background-color: #FAF8F5;
+                color: #1A1A1A;
+            }
+
+            /* ── Luxury effect utilities ── */
+
+            /* Subtle lift + shadow on hover */
+            .hover-lift {
+                transition: transform 0.22s ease, box-shadow 0.22s ease;
+            }
+            .hover-lift:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 28px rgba(90, 42, 131, 0.13);
+            }
+
+            /* Gold-border shimmer on card hover */
+            .card-luxury {
+                border: 1px solid #E5DDD3;
+                transition: border-color 0.22s ease, box-shadow 0.22s ease;
+            }
+            .card-luxury:hover {
+                border-color: #C8A165;
+                box-shadow: 0 6px 24px rgba(200, 161, 101, 0.18);
+            }
+
+            /* Image zoom container */
+            .img-zoom-wrap { overflow: hidden; }
+            .img-zoom-wrap img {
+                transition: transform 0.45s ease;
+            }
+            .img-zoom-wrap:hover img {
+                transform: scale(1.07);
+            }
+
+            /* Thumbnail selection ring */
+            .thumb-active { outline: 2px solid #C8A165; outline-offset: 2px; }
+
+            /* Page entrance animation */
+            .page-fade {
+                animation: fadeUp 0.35s ease both;
+            }
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(10px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+
+            /* Gold ornament divider */
+            .ornament {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                justify-content: center;
+            }
+            .ornament::before,
+            .ornament::after {
+                content: '';
+                height: 1px;
+                width: 3rem;
+                background: #C8A165;
+                opacity: 0.7;
+            }
+
+            /* Smooth toast fade-out */
+            #toast-container .alert {
+                transition: opacity 0.3s ease;
+            }
+        </style>
     </head>
-    <body>
+
+    <body class="min-h-screen flex flex-col">
         {% include "app/components/navbar.html" %}
-        {% block body_content %}
-            safd
-        {% endblock body_content %}
+
+        <main class="flex-1 page-fade pt-16 md:pt-20">
+            {% block body_content %}{% endblock body_content %}
+        </main>
+
         {% include "app/components/footer.html" %}
+
+        <!-- Toast container (top-right) -->
+        <div id="toast-container" class="toast toast-top toast-end z-[200]"></div>
+
+        <!-- Tailwind browser build (processes @theme above) -->
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-        <script src="{% static "js/addToCart.js" %}"></script>
-        <script src="{% static "js/productDetail.js" %}"></script>
-        
-        <script src="{% static "js/checkout.js" %}"></script>
+
+        <!-- Shared cart utilities: available on every page -->
+        <script>
+            function showToast(message, type) {
+                const container = document.getElementById('toast-container');
+                if (!container) return;
+                const el = document.createElement('div');
+                el.className = 'alert alert-' + (type || 'success') + ' shadow-lg text-sm py-2 px-4 rounded-xl';
+                el.textContent = message;
+                container.appendChild(el);
+                setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 320); }, 2700);
+            }
+
+            function updateCartUI(count, total) {
+                document.querySelectorAll('[data-cart-count]').forEach(el => el.textContent = count);
+                document.querySelectorAll('[data-cart-summary]').forEach(el => {
+                    el.textContent = count + ' ' + (count == 1 ? 'Item' : 'Items');
+                });
+                document.querySelectorAll('[data-cart-total-display]').forEach(el => {
+                    el.textContent = 'Subtotal: Rs.' + total;
+                });
+                document.querySelectorAll('[data-cart-total]').forEach(el => {
+                    el.textContent = 'Rs.' + total;
+                });
+            }
+
+            // ── Scroll-position save / restore ──────────────────────────
+            // Saves scroll position when clicking any product-detail link,
+            // then restores it when the user navigates back (bfcache pageshow).
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('a[href*="/product/"]');
+                if (link) {
+                    sessionStorage.setItem('scrollBack_' + location.pathname, window.scrollY);
+                }
+            });
+            window.addEventListener('pageshow', function (e) {
+                var key = 'scrollBack_' + location.pathname;
+                var saved = sessionStorage.getItem(key);
+                if (saved !== null) {
+                    requestAnimationFrame(function () {
+                        window.scrollTo({ top: parseInt(saved, 10), behavior: 'instant' });
+                    });
+                    sessionStorage.removeItem(key);
+                }
+            });
+
+            // ── Wishlist AJAX (global — works on every page) ─────────────
+            function getCsrfToken() {
+                var el = document.querySelector('[name=csrfmiddlewaretoken]');
+                if (el) return el.value;
+                var m = document.cookie.match(/csrftoken=([^;]+)/);
+                return m ? m[1] : '';
+            }
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('.wishlist-btn');
+                if (!btn) return;
+                e.preventDefault();
+                var productId = btn.dataset.wishlistId;
+                var icon = btn.querySelector('.wishlist-icon');
+                fetch('/wishlist/toggle/' + productId + '/', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCsrfToken(),
+                    },
+                })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.wishlisted) {
+                        icon.setAttribute('fill', '#5A2A83');
+                        btn.setAttribute('aria-label', 'Remove from wishlist');
+                    } else {
+                        icon.setAttribute('fill', 'none');
+                        btn.setAttribute('aria-label', 'Add to wishlist');
+                        // Remove card from wishlist page when untoggled
+                        if (window.location.pathname === '/wishlist/') {
+                            var card = btn.closest('[data-product-card]');
+                            if (card) {
+                                card.style.transition = 'opacity .3s';
+                                card.style.opacity = '0';
+                                setTimeout(function () { card.remove(); }, 300);
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
+
+        {% block scripts %}{% endblock scripts %}
     </body>
 </html>
